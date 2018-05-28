@@ -1,0 +1,514 @@
+<?php
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+
+
+class Web extends CI_Controller {
+
+
+
+	/**
+
+	 * Index Page for this controller.
+
+	 *
+
+	 * Maps to the following URL
+
+	 * 		http://example.com/index.php/welcome
+
+	 *	- or -
+
+	 * 		http://example.com/index.php/welcome/index
+
+	 *	- or -
+
+	 * Since this controller is set as the default controller in
+
+	 * config/routes.php, it's displayed at http://example.com/
+
+	 *
+
+	 * So any other public methods not prefixed with an underscore will
+
+	 * map to /index.php/welcome/<method_name>
+
+	 * @see https://codeigniter.com/user_guide/general/urls.html
+
+	 */
+
+
+
+	public function __construct() {
+
+
+
+		parent::__construct();
+
+
+
+	}
+
+	public function index()
+
+	{
+		if(!$this->session->userdata('user_id')){
+
+			redirect('auth');
+
+		}
+		$data['device_status'] = $this->get_devices();
+
+		$this->load->view('web/layout/layout',['subview' => ['web/home'], 'device_status' => $data['device_status']]);
+
+	}
+
+
+
+	function live_map() {
+		if(!$this->session->userdata('user_id')){
+
+			redirect('auth');
+
+		}
+		$this->load->view('web/layout/layout',['subview' => ['web/live_map']]);
+
+	}
+
+	function logout() {
+
+
+
+		$this->session->unset_userdata('user_id');
+
+		$this->session->unset_userdata('user_name');
+
+		$this->session->unset_userdata('user_image');
+
+
+
+		redirect('auth');
+
+
+
+	}
+
+
+
+	function myprofile() {
+
+		if(!$this->session->userdata('user_id')){
+
+			redirect('auth');
+
+		}
+
+		$data['profile'] = $this->custom_model->where(['id' => $this->session->userdata('user_id')])
+
+			->first('users','email,name,profile_picture');
+
+		if(count($data['profile']) <= 0) {
+
+			redirect('web/logout');
+
+		}
+
+
+
+		$this->form_validation->set_rules('name', 'name', 'required');
+
+		$this->form_validation->set_rules('email', 'email', 'required|valid_email');
+
+		if ($this->form_validation->run() == true) {
+
+
+
+			$profile_picture = $data['profile']->profile_picture;
+
+
+
+			// Uplaoding profile image
+
+			if(isset($_FILES['profile_picture']['name']) && !empty($_FILES['profile_picture']['name'])) {
+
+
+
+    			$config['upload_path']          = './assets/profile/';
+
+                $config['allowed_types']        = 'gif|jpg|png|jpeg';
+
+                $config['file_name']			= rand(1000,9999). time();
+
+
+
+                $this->load->library('upload', $config);
+
+
+
+
+
+                if (!$this->upload->do_upload('profile_picture')) {
+
+                	$data['file_error'] = array('error' => $this->upload->display_errors());
+
+                	echo "<PrE>";
+
+                	print_r($data['file_error']); die;
+
+                } else {
+
+                	if(!empty($profile_picture)) {
+
+    	            	if(file_exists($config['upload_path'] . $profile_picture)){
+
+    	            		unlink($config['upload_path'] . $profile_picture);
+
+    	            	}
+
+    	            }
+
+                	$data = $this->upload->data();
+
+                	$profile_picture = $data['file_name'];
+
+                }
+
+			}
+
+    		// end uploading profile iamge
+
+
+
+			$this->session->set_userdata('user_name',ucfirst($this->input->post('name')));
+
+			$this->session->set_userdata('user_image',$profile_picture);
+
+
+
+
+
+			$this->custom_model->where(['id' => $this->session->userdata('user_id')])->update('users',[
+
+				"name" => trim($this->input->post('name')),
+
+				"email" => trim($this->input->post('email')),
+
+				"profile_picture" => $profile_picture
+
+			]);
+
+			$this->session->set_flashdata('error', 'Profile has been updated successfully');
+
+			redirect('myprofile');
+
+
+
+		}
+
+
+
+		$this->load->view('web/layout/layout',['subview' => ['web/myprofile'], 'data' => $data]);
+
+	}
+
+
+
+
+
+	public function get_devices($cron = 0) {
+
+		/*echo date_default_timezone_get();
+
+		echo date('Y-m-d h:i:s A');*/
+
+
+
+		if( $cron == 1 ) {
+
+			$current_hour = date('H');
+
+			$current_minute = date('i');
+
+			echo '$current_hour '. $current_hour;
+			echo '$current_minute '. $current_minute;
+
+			//$this->db->query("UPDATE bus_details SET odometer_per_day = '".$current_hour."', total_distance_per_day = '".$current_minute."', updated_at = '".date('Y-m-d H:i:s')."' WHERE device_id = '80' LIMIT 1");
+
+			if($current_hour == 23 &&  ( $current_minute >= 54 || $current_minute <= 59 )) {
+//				mail('neeraj@kavyasoftech.com', 'asdfsa', 'Oceansdf Hello');
+//xit;
+
+
+			} else {
+
+				exit;
+
+			}
+
+		}
+
+
+
+		$curl = curl_init();
+
+		//For operator user
+
+		$user_api_hash = TRACK_TOKEN;
+
+		curl_setopt_array($curl, array(
+
+		  CURLOPT_URL => "http://track.idealconectividade.com.br/api/get_devices",
+
+		  CURLOPT_RETURNTRANSFER => true,
+
+		  CURLOPT_ENCODING => "",
+
+		  CURLOPT_MAXREDIRS => 10,
+
+		  CURLOPT_TIMEOUT => 30,
+
+		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+
+		  CURLOPT_CUSTOMREQUEST => "POST",
+
+		  CURLOPT_POSTFIELDS => "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"user_api_hash\"\r\n\r\n".$user_api_hash."\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--",
+
+		  CURLOPT_HTTPHEADER => array(
+
+		    "cache-control: no-cache",
+
+		    "content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+
+		    "postman-token: 361bbc63-1604-427e-f642-e620549b169a"
+
+		  ),
+
+		));
+
+		$response = curl_exec($curl);
+
+		$err = curl_error($curl);
+
+		curl_close($curl);
+
+		if ($err) {
+
+			return false;
+
+		} else {
+
+		 // echo $response;
+
+		    $res = json_decode($response);
+
+		  //  var_dump($res);
+
+		    $return = array();
+
+		    $return['online_counter'] = 0;
+
+		    $return['offline_counter'] = 0;
+
+		    $return['total_distance'] = 0;
+
+		    $return['fuel_consumption'] = 0;
+
+		    $return['over_speeding'] = 0;
+
+		    $over_speeding_limit = 66;
+
+		   // echo $cron;
+
+		    if( count($res) && isset($res[0]) && isset($res[0]->items) ) {
+
+		      	foreach ($res as $groupKey => $itemGroups) {
+
+		      		if( count($itemGroups->items) > 0 ) {
+
+			      		foreach ($itemGroups->items as $itemKey => $items) {
+
+			      			if($cron == 2){
+
+			      				var_dump($items);
+
+			      			}elseif($cron == 0 || $cron == 3 ){
+
+
+
+				      			if($items->online == "online") {
+
+				      				$return['online_counter']  = $return['online_counter'] + 1;
+
+				      			} else {
+
+				      				$return['offline_counter'] = $return['offline_counter'] + 1;
+
+				      			}
+
+
+
+				      			if( isset($items->device_data) && isset($items->device_data->traccar) && isset($items->device_data->traccar->other) && $items->device_data->traccar->other != "") {
+
+
+
+				      				//Over speeding count
+
+				      				if( $items->device_data->traccar->speed >= $over_speeding_limit ) {
+
+				      					$return['over_speeding'] = $return['over_speeding'] + 1;
+
+				      				}
+
+
+
+				      				$todaysEntry = $this->db->query("SELECT total_distance_per_day FROM bus_details WHERE device_id = '".$items->id."' LIMIT 1 ");
+
+				      				if( $todaysEntry->num_rows() > 0 ) {
+
+				      					$parameters = $items->device_data->traccar->other;
+
+				      					preg_match_all('/<totaldistance>(.*?)<\/totaldistance>/s', $parameters, $matches2);
+
+
+
+				      					$totaldistance = 0;
+
+				      					if( isset($matches2[1]) && isset($matches2[1][0]) && $matches2[1][0] != "" ) {
+
+				      						$totaldistance = $matches2[1][0];
+
+				      					}
+
+				      					$distance_covered = $totaldistance - $todaysEntry->row()->total_distance_per_day;
+
+
+
+				      					$return['fuel_consumption'] = $return['fuel_consumption'] + ( .76923076923076 *($distance_covered/1000));
+
+
+
+				      					$return['total_distance'] = $return['total_distance'] + $distance_covered;
+
+
+
+
+
+
+
+				      				}
+
+				      			}
+
+
+
+				      		} else {
+
+				      			//For cron use
+
+				      			/*var_dump($items);
+
+				      			exit;*/
+
+
+
+
+
+				      			if(  isset($items->device_data) && isset($items->device_data->traccar) && isset($items->device_data->traccar->other) && $items->device_data->traccar->other != "") {
+
+
+
+				      				$parameters = $items->device_data->traccar->other;
+
+
+
+				      				preg_match_all('/<odometer>(.*?)<\/odometer>/s', $parameters, $matches);
+
+				      				preg_match_all('/<totaldistance>(.*?)<\/totaldistance>/s', $parameters, $matches2);
+
+				      				if( isset($matches[1]) && isset($matches[1][0]) && $matches[1][0] != "" ) {
+
+
+
+				      					$checkExists = $this->db->query("SELECT id FROM bus_details WHERE device_id = '".$items->id."' LIMIT 1 ");
+
+
+
+				      					$totaldistance = 0;
+
+				      					if( isset($matches2[1]) && isset($matches2[1][0]) && $matches2[1][0] != "" ) {
+
+				      						$totaldistance = $matches2[1][0];
+
+				      					}
+
+				      					if( $checkExists->num_rows() > 0 ) {
+
+				      						$this->db->query("UPDATE bus_details SET odometer_per_day = '".$matches[1][0]."', total_distance_per_day = '".$totaldistance."', updated_at = '".date('Y-m-d H:i:s')."' WHERE device_id = '".$items->id."' LIMIT 1");
+
+				      					} else {
+
+				      						$this->db->query("INSERT INTO  bus_details ( device_id, odometer_per_day, total_distance_per_day,  updated_at ) VALUES ( '".$items->id."', '".$matches[1][0]."', '".$totaldistance."', '".date('Y-m-d H:i:s')."' ) ");
+
+				      					}
+
+
+
+				      				} //end of check for match of odoemeter
+
+
+
+				      			}
+
+				      		}
+
+
+
+			      		}
+
+		      		}
+
+		      	}
+
+		    }
+
+
+
+		    if( $cron == 3 ) {
+
+		    	if( count($return) > 0 ) {
+
+		    		$return['total_distance'] = round($return['total_distance']/1000, 2). ' <dd style="font-size:12px; display: inline-block;">/Km</dd>';
+
+		    		$return['bus_status'] = '<div style="color: darkgreen; display: block;">'.$return['online_counter'].' ON</div>
+
+                                    <div style="color: red; display: block;">'. $return['offline_counter'].' OFF</div>';
+
+
+
+                          $return['fuel_consumption'] = round($return['fuel_consumption'], 2);
+
+                          echo json_encode($return);
+
+                          exit;
+
+		    	} else {
+
+		    		echo json_encode( $return );
+
+		    		exit;
+
+		    	}
+
+		    }
+
+
+
+		    return $return;
+
+		}
+
+	}
+
+}
+
