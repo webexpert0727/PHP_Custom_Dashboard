@@ -2047,137 +2047,11 @@
     handlers.polyline.tooltip.end = 'Click last point to finish line';
 </script>
 
-<script>
-    var custom_url = "http://bus.idealconectividade.com.br/tracking/";
-
-    //window.objects_url = 'http://track.idealconectividade.com.br/objects/items';
-    //custom_url+'get_check_list_device.php'
-    window.objects_url = custom_url+'get_check_list_device.php',
-
-    window.objects_stop_time = custom_url+'stop_time.json';
-
-    //window.check_objects_url = 'http://track.idealconectividade.com.br/objects/items_json';
-    window.check_objects_url = custom_url+'get_devices.php';
-
-    window.delete_objects_url = 'http://track.idealconectividade.com.br/objects/destroy/%7Bobjects%7D';
-    window.device_change_active = 'http://track.idealconectividade.com.br/devices/change_active';
-    window.device_group_status_change_url = 'http://track.idealconectividade.com.br/objects/change_group_status';
-
-    window.listview_url = 'http://track.idealconectividade.com.br/objects/list';
-    window.listview_items_url = 'http://track.idealconectividade.com.br/objects/list/items';
-
-    //window.geofences_url = 'http://track.idealconectividade.com.br/geofences';
-    window.geofences_url = custom_url+'geofences.json';
-
-    window.geofence_change_active = 'http://track.idealconectividade.com.br/geofences/change_active';
-    window.geofence_delete_url = 'http://track.idealconectividade.com.br/geofences/%7Bgeofences%7D';
-
-    //window.routes_url = 'http://track.idealconectividade.com.br/routes';
-    window.routes_url = custom_url+'routes.php';
-
-    window.route_change_active = 'http://track.idealconectividade.com.br/routes/change_active';
-    window.route_delete_url = custom_url+'route_delete.php';
-
-    //window.alerts_url = 'http://track.idealconectividade.com.br/alerts';
-    window.alerts_url = custom_url+'alerts.json';
-
-    window.alert_change_active = 'http://track.idealconectividade.com.br/alerts/change_active';
-    window.alert_delete_url = 'http://track.idealconectividade.com.br/alerts/%7Balerts%7D';
-    window.alert_get_events = 'http://track.idealconectividade.com.br/custom_events/get_events';
-    window.alert_get_protocols = 'http://track.idealconectividade.com.br/custom_events/get_protocols';
-
-    window.history_url = 'http://track.idealconectividade.com.br/history';
-    window.history_positions_url = 'http://track.idealconectividade.com.br/history/positions';
-    window.history_positions_delete_url = 'http://track.idealconectividade.com.br/history/delete_positions';
-    window.history_export_url = 'http://track.idealconectividade.com.br/history/export';
-
-    //window.events_url = 'http://track.idealconectividade.com.br/events';
-    window.events_url = custom_url+'events.json';
-
-    window.assets_url = 'http://track.idealconectividade.com.br/'
-
-    //window.map_icons_url = 'http://track.idealconectividade.com.br/map_icons';
-    window.map_icons_url = custom_url+'map_icons.html';
-
-    window.map_icons_change_active = 'http://track.idealconectividade.com.br/map_icons/change_active';
-    window.map_icons_delete_url = 'http://track.idealconectividade.com.br/map_icons/%7Bmap_icons%7D';
-    window.map_icons_list = 'http://track.idealconectividade.com.br/map_icons/list';
-
-    window.change_map_url = 'http://track.idealconectividade.com.br/my_account/change_map';
-    window.change_map_settings_url = 'http://track.idealconectividade.com.br/my_account_settings/change_map_settings';
-
-    //window.geo_address_url = 'http://track.idealconectividade.com.br/api/geo_address';
-   window.geo_address_url = custom_url+'get_full_address.php',
-
-    window.geofence_group_status_change_url = 'http://track.idealconectividade.com.br/geofences_groups/change_status';
-    window.geofences_export_type_url = 'http://track.idealconectividade.com.br/geofences/export_type';
-    window.geofences_import_url = 'http://track.idealconectividade.com.br/geofences/import';
-    window.change_toolbar_top_status_url = 'http://track.idealconectividade.com.br/my_account_settings/change_top_toolbar';
-    window.change_map_settings_url = 'http://track.idealconectividade.com.br/my_account_settings/change_map_settings';
-</script>
-<script>
-    function my_account_settings_edit_modal_callback(res) {
-        if (res.status == 1)
-            window.location.reload();
-    }
-
-    function devices_create_modal_callback(res) {
-        if (res.status == 1) {
-            app.notice.success('Successfully added device');
-            app.devices.list();
-        }
-    }
-
-    function devices_edit_modal_callback(res) {
-        if (res.status == 1) {
-            app.notice.success('Successfully updated device');
-
-            if (typeof res.deleted != 'undefined') {
-                app.devices.remove(res.id);
-
-                $('.history-tab-form .devices_list option[value="' + res.id + '"]');
-            }
-
-            app.devices.list();
-        }
-    }
-
-    function email_confirmation_edit_modal_callback(res) {
-        if (res.status == 1) {
-            app.notice.success('Successfully confirmed email');
-            $('#email_confirmation').hide();
-        }
-    }
-
-    function my_account_edit_modal_callback(res) {
-    if (res.status == 1) {
-        app.notice.success('Successfully updated profile');
-            if (res.email_changed == 1) {
-                 $('#email_confirmation').show();
-                 $('#email_confirmation a').trigger('click');
-            }
-        }
-    }
-
-    function email_resend_code_modal_callback(res) {
-        if (res.status == 1) {
-            app.notice.success('Activation email sent');
-        }
-    }
-
-    function events_do_destroy_modal_callback(res) {
-        if (res.status == 1) {
-            app.events.list();
-        }
-    }
-</script>
-
 <script type="text/javascript">
     app.debug = false;
     app.version = '3.1.0.13';
     app.offlineTimeout = 300;
     app.checkFrequency = 5;
-
     app.show_object_info_after = 0;
     app.object_listview = 0;
 
@@ -2250,15 +2124,12 @@
     };
 
     window.distance_unit_hour = 'kph';
-
     app.settings.weekStart = '1';
-
     app.settings.mapCenter = [parseFloat('-8.761160'), parseFloat('-63.900430')];
     app.settings.mapZoom = 19;
     app.settings.user_id = '7';
     app.settings.map_id = '2';
     app.settings.availableMaps = {"3":"3","1":"1","4":"4","2":"2"};
-
     app.settings.toggleSidebar  = false;
     app.settings.showDevice     = true;
     app.settings.showGeofences  = true;
@@ -2267,24 +2138,19 @@
     app.settings.showTail       = true;
     app.settings.showNames      = true;
     app.settings.showTraffic    = false;
-
     app.settings.showHistoryRoute = false;
     app.settings.showHistoryArrow = true;
     app.settings.showHistoryStop  = true;
     app.settings.showHistoryEvent = true;
-
     app.settings.keys.google = 'AIzaSyDG5ZheVmnPJbn5t0hsEF8e8ZRG-k_X0Xc';
-
     app.settings.keys.here_map_id = '';
     app.settings.keys.here_map_code = '';
-
     </script>
 <script type="text/javascript">
     $(window).on("load", function() {
         app.init();
     });
 </script>
-
 <style type="text/css"> #widgets { display: none !important;  }
 #tools_dropdown { right: -155px !important;     left: -100px !important; }
 #admin_li { display: none !important; }
@@ -2293,3 +2159,129 @@
  </style>
 </body>
 </html>
+
+<script>
+    function my_account_settings_edit_modal_callback(res) {
+        if (res.status == 1)
+            window.location.reload();
+    }
+
+    function devices_create_modal_callback(res) {
+        if (res.status == 1) {
+            app.notice.success('Successfully added device');
+            app.devices.list();
+        }
+    }
+
+    function devices_edit_modal_callback(res) {
+        if (res.status == 1) {
+            app.notice.success('Successfully updated device');
+
+            if (typeof res.deleted != 'undefined') {
+                app.devices.remove(res.id);
+
+                $('.history-tab-form .devices_list option[value="' + res.id + '"]');
+            }
+
+            app.devices.list();
+        }
+    }
+
+    function email_confirmation_edit_modal_callback(res) {
+        if (res.status == 1) {
+            app.notice.success('Successfully confirmed email');
+            $('#email_confirmation').hide();
+        }
+    }
+
+    function my_account_edit_modal_callback(res) {
+    if (res.status == 1) {
+        app.notice.success('Successfully updated profile');
+            if (res.email_changed == 1) {
+                 $('#email_confirmation').show();
+                 $('#email_confirmation a').trigger('click');
+            }
+        }
+    }
+
+    function email_resend_code_modal_callback(res) {
+        if (res.status == 1) {
+            app.notice.success('Activation email sent');
+        }
+    }
+
+    function events_do_destroy_modal_callback(res) {
+        if (res.status == 1) {
+            app.events.list();
+        }
+    }
+</script>
+
+
+<script>
+    var custom_url = "http://bus.idealconectividade.com.br/tracking/";
+    //window.objects_url = 'http://track.idealconectividade.com.br/objects/items';
+    //custom_url+'get_check_list_device.php'
+    window.objects_url = custom_url+'get_check_list_device.php',
+
+    window.objects_stop_time = custom_url+'stop_time.json';
+
+    //window.check_objects_url = 'http://track.idealconectividade.com.br/objects/items_json';
+    window.check_objects_url = custom_url+'get_devices.php';
+
+    window.delete_objects_url = 'http://track.idealconectividade.com.br/objects/destroy/%7Bobjects%7D';
+    window.device_change_active = 'http://track.idealconectividade.com.br/devices/change_active';
+    window.device_group_status_change_url = 'http://track.idealconectividade.com.br/objects/change_group_status';
+
+    window.listview_url = 'http://track.idealconectividade.com.br/objects/list';
+    window.listview_items_url = 'http://track.idealconectividade.com.br/objects/list/items';
+
+    //window.geofences_url = 'http://track.idealconectividade.com.br/geofences';
+    window.geofences_url = custom_url+'geofences.json';
+
+    window.geofence_change_active = 'http://track.idealconectividade.com.br/geofences/change_active';
+    window.geofence_delete_url = 'http://track.idealconectividade.com.br/geofences/%7Bgeofences%7D';
+
+    //window.routes_url = 'http://track.idealconectividade.com.br/routes';
+    window.routes_url = custom_url+'routes.php';
+
+    window.route_change_active = 'http://track.idealconectividade.com.br/routes/change_active';
+    window.route_delete_url = custom_url+'route_delete.php';
+
+    //window.alerts_url = 'http://track.idealconectividade.com.br/alerts';
+    window.alerts_url = custom_url+'alerts.json';
+
+    window.alert_change_active = 'http://track.idealconectividade.com.br/alerts/change_active';
+    window.alert_delete_url = 'http://track.idealconectividade.com.br/alerts/%7Balerts%7D';
+    window.alert_get_events = 'http://track.idealconectividade.com.br/custom_events/get_events';
+    window.alert_get_protocols = 'http://track.idealconectividade.com.br/custom_events/get_protocols';
+
+    window.history_url = 'http://track.idealconectividade.com.br/history';
+    window.history_positions_url = 'http://track.idealconectividade.com.br/history/positions';
+    window.history_positions_delete_url = 'http://track.idealconectividade.com.br/history/delete_positions';
+    window.history_export_url = 'http://track.idealconectividade.com.br/history/export';
+
+    //window.events_url = 'http://track.idealconectividade.com.br/events';
+    window.events_url = custom_url+'events.json';
+
+    window.assets_url = 'http://track.idealconectividade.com.br/'
+
+    //window.map_icons_url = 'http://track.idealconectividade.com.br/map_icons';
+    window.map_icons_url = custom_url+'map_icons.html';
+
+    window.map_icons_change_active = 'http://track.idealconectividade.com.br/map_icons/change_active';
+    window.map_icons_delete_url = 'http://track.idealconectividade.com.br/map_icons/%7Bmap_icons%7D';
+    window.map_icons_list = 'http://track.idealconectividade.com.br/map_icons/list';
+
+    window.change_map_url = 'http://track.idealconectividade.com.br/my_account/change_map';
+    window.change_map_settings_url = 'http://track.idealconectividade.com.br/my_account_settings/change_map_settings';
+
+    //window.geo_address_url = 'http://track.idealconectividade.com.br/api/geo_address';
+   window.geo_address_url = custom_url+'get_full_address.php',
+
+    window.geofence_group_status_change_url = 'http://track.idealconectividade.com.br/geofences_groups/change_status';
+    window.geofences_export_type_url = 'http://track.idealconectividade.com.br/geofences/export_type';
+    window.geofences_import_url = 'http://track.idealconectividade.com.br/geofences/import';
+    window.change_toolbar_top_status_url = 'http://track.idealconectividade.com.br/my_account_settings/change_top_toolbar';
+    window.change_map_settings_url = 'http://track.idealconectividade.com.br/my_account_settings/change_map_settings';
+</script>
