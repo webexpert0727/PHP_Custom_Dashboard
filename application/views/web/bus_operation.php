@@ -114,10 +114,11 @@ div.dt-buttons {
                         <?php if( isset($totalRouteRecord) && count($totalRouteRecord) > 0 ){ ?>
                         <?php
                         $counter = 1;
-                        foreach ($totalRouteRecord as $key  => $value) { ?>
+                        foreach ($totalRouteRecord as $value) { 
+                            ?>
                         <tr>
                             <td><?php echo $counter; ?> </td>
-                            <td><?php echo $value['bus_name']; ?></td>
+                            <td><?php echo $totalRouteRecord->id; ?></td>
                             <?php $f_diff = timeDiff($value['f_exp_time'],$value['f_time'],$value['schedule_date'] ); ?>
                             <?php $t_diff = timeDiff($value['t_exp_time'],$value['t_time'],$value['schedule_date'] ); ?>
                             <?php $m_diff = timeDiff($value['m_exp_time'],$value['m_time'],$value['schedule_date'] ); ?>

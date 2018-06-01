@@ -240,25 +240,27 @@ class Performance extends CI_Controller {
       public function save_csv_import(){
             $file = $_FILES['csv_file']['tmp_name'];
 
-
             //$file = fopen($_FILES['csv_file']['tmp_name'],'r') or die("can't open file");
            // $file = FCPATH . 'assets/Route_10.csv';
 
             $row = 1;
             if (($handle = fopen($file, "r")) !== FALSE) {
-
                 $counter = -1;
                 $i = 0;
                 $csvData = array();
                 while (($data = fgetcsv($handle, 5000, ",")) !== FALSE) {
-                 
-                    if( $i >= 1 ) {
 
+                   //  print_r($data);
+                   //  echo '</pre>';
+                   // die;
+                   // exit;
 
-                        if( $data[4] != "" ) {
-
+                    if( $i >= 1) {
+                        //echo "nbfkjdhsfjk";
+                        if($data[4]!= "") {
                               $counter++;
-
+                             // print_r($data);
+                             // exit;
                               $csvData[$counter]['s_no']               = $data[0];
                               $csvData[$counter]['route']              = $data[1];
                               $csvData[$counter]['bus_name']           = $data[2];
@@ -269,9 +271,6 @@ class Performance extends CI_Controller {
                               $csvData[$counter]['m_expected_time']    = $data[7];
                               $csvData[$counter]['end_time']           = $data[8];
                               $csvData[$counter]['e_expected_time']    = $data[9];
-                             
-                             
-
                                 $start_latlong = str_replace('"', '' , $csvData[$counter]['start_latlong']) ;
                                 $s_lat_long = explode(',', $start_latlong);
 
@@ -309,14 +308,11 @@ class Performance extends CI_Controller {
                           }
                     }
                        $i++;
-
                 }
-               
-                fclose($handle);
-
+             fclose($handle);
             }
 
-             redirect('performance');
+             redirect('/performance');
 
 
     }
@@ -1074,12 +1070,65 @@ name    Ocean+test+3AA
         if($this->input->post("submitRoute") == 'submitRoute'){
              
             $route_name  = $this->input->post('route_name');
-            $whereRoute  = array('route' => $route_name);
+            //phpcurlapi($route_name);
+            //print_r($route_name); die;
+           // print_r(phpcurlapi($route_name)); die;
+$curl = curl_init();
 
-            $this->db->where($whereRoute);
-            $query  = $this->db->get('bus_performance');
-            $totalRouteRecord = $query->result_array();
-           // print_r($totalRouteRecord); die;
+$user_api_hash =  '$2y$10$kAByy95yYcS./vm1rw5MqeVjvhHYdylitYTCVNdYMrn8iCCIbUd8W';
+//$user_api_hash =  '$2y$10$GOszN9Sk8xXONE2iX9CHj.0N876QGlB9jP7LyvEPCEC9q7ZM5G7nm';
+//$user_api_hash =  '$2y$10$e4BohIdMyomQ5Pi6fnQaEe6qKR13Cz3gj0/bNtDDgrbTgSJiclJ7C';
+
+curl_setopt_array($curl, array(
+
+  CURLOPT_URL => "http://track.idealconectividade.com.br/api/get_routes?&&user_id=7",
+
+  CURLOPT_RETURNTRANSFER => true,
+
+  CURLOPT_ENCODING => "",
+
+  CURLOPT_MAXREDIRS => 10,
+
+  CURLOPT_TIMEOUT => 30,
+
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+
+  CURLOPT_CUSTOMREQUEST => "POST",
+
+  CURLOPT_POSTFIELDS => "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"user_api_hash\"\r\n\r\n".$user_api_hash."\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--",
+
+  CURLOPT_HTTPHEADER => array(
+
+    "cache-control: no-cache",
+
+    "content-type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+
+    "postman-token: 361bbc63-1604-427e-f642-e620549b169a"
+
+  ),
+
+));
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+curl_close($curl);
+$res = json_decode($response);
+foreach($res as $r){
+  foreach($r as $i){
+    if($i->id== $route_name){
+      $exact_array=$i->name;
+      
+      $numbers = preg_replace('/[^0-9]/', '', $exact_array);
+      $whereRoute  = array('route' => $numbers);
+      $this->db->where($whereRoute);
+      $query  = $this->db->get('bus_performance');
+      $totalRouteRecord = $query->result_array();
+      
+    }
+    
+  }
+}
+
             
         }
 
@@ -1130,3 +1179,36 @@ name    Ocean+test+3AA
     }
 
 }
+
+
+
+//     function phpcurlapi($id){
+
+//     $request = new HttpRequest();
+
+//     $request->setUrl('http://track.idealconectividade.com.br/api/get_routes');
+//     $request->setMethod(HTTP_METH_GET);
+
+// $request->setQueryData(array(
+//   'user_api_hash' => '$2y$10$kAByy95yYcS./vm1rw5MqeVjvhHYdylitYTCVNdYMrn8iCCIbUd8W',
+//   'lang' => 'en',
+//   '' => '',
+//   'id' => '66',
+//   'null' => ''
+// ));
+
+// $request->setHeaders(array(
+//   'Postman-Token' => 'b8a9ba03-42b1-40fb-bc5f-21c9752caf33',
+//   'Cache-Control' => 'no-cache',
+//   'user_api_hash' => '$2y$10$kAByy95yYcS./vm1rw5MqeVjvhHYdylitYTCVNdYMrn8iCCIbUd8W'
+// ));
+
+// try {
+//   $response = $request->send();
+
+//   echo $response->getBody();
+// } catch (HttpException $ex) {
+//   echo $ex;
+// }
+//   }
+

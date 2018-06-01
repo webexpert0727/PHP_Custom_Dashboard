@@ -1,6 +1,5 @@
  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css">
-
 <!-- <link rel="stylesheet" type="text/css" href="https://tarruda.github.io/bootstrap-datetimepicker/assets/css/bootstrap.css"> -->
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
@@ -46,8 +45,7 @@ input[type="search"] {
                         <?php
                         $counter = 1;
                         foreach ($result as $key => $value) { ?>
-                        <tr>
-                            
+                        <tr>  
                             <td><?php echo $counter; ?> </td>
                             <td><?php echo $value['bus_name']; ?></td>
                             <?php $f_diff = timeDiff($value['f_exp_time'],$value['f_time'],$value['schedule_date'] ); ?>
@@ -57,15 +55,11 @@ input[type="search"] {
                             <td ><?php echo $value['t_exp_time']; ?></td>
                             <td style="<?php if($t_diff < 0 ) { ?> color: red; <?php } ?>"><?php echo $value['t_time']; ?></td>
                             <td style="<?php if($f_diff + $t_diff < 0 ) { ?> color: red; <?php } ?>"><?php echo $f_diff + $t_diff; ?></td>
-
                         </tr>
                         <?php
                         $counter++;
-
                         }
                     } ?>
-
-
                     </tbody>
                     </table>
 
@@ -149,7 +143,6 @@ input[type="search"] {
     // DataTable
         if ($('#dataTables-example').length > 0) {
             $('#dataTables-example').DataTable({
-
                 dom: 'lBfrtip',
                 buttons: [
                     'excelHtml5',
